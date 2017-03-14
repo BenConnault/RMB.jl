@@ -61,14 +61,18 @@ end
 #assumes q is square
 z2q(z::Array{Float64,1})=z2q(z,Int(.5*(1+sqrt(1+4*length(z)))))
 
+"""
+    z2q(z,dx)
 
+Map a `dx (dy-1)` vector to a logit `(dx,dy-1)` stochastic matrix.
+"""
 function z2q(z::Array{Float64,1},dx::Int)
 	#add some size checks
 	dy=Int(length(z)/dx)+1
 	q=zeros(dx,dy)
 	mz=reshape(z,dx,dy-1)
 	for ix=1:dx
-		ez=[exp(slice(mz,ix,:));1]
+		ez=[exp(mz[ix,:]);1]
 		q[ix,:]=ez/sum(ez)
 	end
 	q

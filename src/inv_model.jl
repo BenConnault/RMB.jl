@@ -70,7 +70,7 @@ function u!(model::InventoryModel,theta)
     model.u[:]=model.uaa*theta+model.ubb
 end
 
-function pi!(model::InventoryModel,pidc)
+function pi!(model::InventoryModel,pidc::AbstractMatrix)
     dd,dc,ds,dy,dr=model.dims
     dk=dd*dc*ds
     da=dy*dr
@@ -131,5 +131,24 @@ function twostep(model::InventoryModel)
     # model.u2\thetau2
 end
 
+#################### Identification
+
+#a=[ A_1  I-betaPi_1; ... ; A_da  I-betaPi_da ] 
+
+# function idrank(model::InventoryModel,eta)
+#     dk,da=size(model.u)
+#     dtheta=size(model.uaa,2)
+#     b=[1(ind2sub((dk,da),ika)[1]==jk)-model.beta*model.pi[ind2sub((dk,da),ika)[1],jk,ind2sub((dk,da),ika)[2]] for ika=1:dk*da,jk=1:dk]
+#     a=hcat(sparse(model.uaa),sparse(b))
+#     aa=full(a'*a)
+#     ai=inv(aa)[1:dtheta,:]
+#     function ff(eta1)
+#         pi!(model,eta1)
+#         piv=vcat([model.pi[:,:,ia]*model.V for ia=1:da]...)
+#         model.beta*ai*(a'*piv)
+#     end
+#     jpi=Calculus.finite_difference_jacobian(ff,eta)
+#     jpi
+# end 
 
 

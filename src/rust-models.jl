@@ -70,11 +70,21 @@ end
 
 
 
-function rank(model::RustModel,a,eta)
+function idrank(model::RustModel,a,eta)
     dk,da=size(model.u)
-    b=[1(in2sub((dk,da),ika)[1]==jk)-model.beta*model.pi[in2sub((dk,da),ika)[1],jk,in2sub((dk,da),ika)[2]] for ika=1:dk*da,jk=1:dk]
-    m=I-b*((a*b)\a)
-    m*kron(eye(da),model.V',eye(dk))*jpi
+    b=[1(ind2sub((dk,da),ika)[1]==jk)-model.beta*model.pi[ind2sub((dk,da),ika)[1],jk,ind2sub((dk,da),ika)[2]] for ika=1:dk*da,jk=1:dk]
+    m=sparse(I-b*((a*b)\a))
+    function ff(eta1)
+        pi!(model,eta1)
+        piv=vcat([model.pi[:,:,ia]*model.V for ia=1:da]...)
+        model.beta*m*piv
+    end
+    jpi=Calculus.finite_difference_jacobian(ff,eta)
+    rjpi=rank(jpi)
+    println("rank of eta --> u is $rjpi")
+    println("(unconstrained transition matrices are of dimension $(dk*(dk-1)*da))")
+    println("ambient space is of dimension $(dk*(da-1))")
+    println("expect dimension of partial identified set to be dtheta-$(dk*(da-1)-rjpi)")
 end 
 
 
